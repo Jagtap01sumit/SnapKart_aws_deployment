@@ -1,0 +1,78 @@
+ 
+ fuction Productpage(){
+  const [filter,setFilter]=useState({});
+
+
+  const handleFilter = (e, section, option) => {
+    const newFilter={...filter,[section.id]:option.value}
+    setFilter(newFilter)
+    dispatch(fetchProductsByFiltersAsync(newFilter))
+    console.log(section.id, option.value);
+  };
+  useEffect(() => {
+    dispatch(fetchAllProductsAsync());
+  }, [dispatch]);
+
+return(
+      <input
+                                    id={`filter-${section.id}-${optionIdx}`}
+                                    name={`${section.id}[]`}
+                                    defaultValue={option.value}
+                                    type="checkbox"
+                                    defaultChecked={option.checked}
+                                    onChange={e=>handleFilter(e, section, option)}
+                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                  />
+)
+ }
+
+productAPI.js
+
+
+export function  fetchProductsByFilters(filter) {
+//filter={"category":"smartphone"}
+let queryString='';
+for(let key in filter){ 
+  queryString +=`${key}=${filter[key]}&`
+}
+  //TODO: we will not hard-code server URL here
+  return new Promise(async(resolve) =>{
+
+    // http://localhost:8080/products?category=laptops
+    const response = await fetch(' http://localhost:8080/products?'+queryString)
+    const data=await response.json();
+     resolve({data}) 
+ 
+ }
+   );
+}
+
+
+
+Slice.js
+
+export const  fetchProductsByFiltersAsync = createAsyncThunk(
+  "product/ fetchProductsByFilters",
+  async (filter) => {
+    const response = await  fetchProductsByFilters(filter);
+
+    return response.data;
+  }
+);
+
+
+
+  extraReducers: (builder) => {
+    builder
+     
+      .addCase( fetchProductsByFiltersAsync.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase( fetchProductsByFiltersAsync.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.products = action.payload;
+      })
+     
+  },
+);
+
