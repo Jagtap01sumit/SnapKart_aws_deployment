@@ -10,6 +10,7 @@ const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Cart");
 const orderRouter = require("./routes/Order");
 require("dotenv").config();
+const path = require("path");
 
 //
 const session = require("express-session");
@@ -116,6 +117,9 @@ server.use(
     exposedHeaders: ["X-Total-Count"],
   })
 );
+server.use("/public", express.static(path.join(__dirname, "/public")));
+server.use(express.static(path.join(__dirname, "/public")));
+
 server.use(express.json()); // To parse req.body
 server.use("/products", isAuth(), productsRouters.router);
 server.use("/categories", isAuth(), categoriesRouters.router);
